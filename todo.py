@@ -37,16 +37,30 @@ def cmd_done(args):
     else:
         print("Błąd: nie ma takiego zadania.")
 
+def cmd_remove(args):
+    tasks = load_tasks()
+    idx = args.index - 1
+    if 0 <= idx < len(tasks):
+        removed = tasks.pop(idx)
+        save_tasks(tasks)
+        print(f'Usunięto zadanie #{args.index}: "{removed["text"]}"')
+    else:
+        print("Błąd: nie ma takiego zadania.")
+
 def main():
     parser = argparse.ArgumentParser(prog="todo")
     sub = parser.add_subparsers(dest="command", required=True)
     p_add = sub.add_parser("add", help="Dodaj zadanie"); p_add.add_argument("text")
     p_list = sub.add_parser("list", help="Pokaż zadania")
     p_done = sub.add_parser("done", help="Oznacz zadanie"); p_done.add_argument("index", type=int)
+    p_remove = sub.add_parser("remove", help="Usuń zadanie")
+    p_remove.add_argument("index", type=int, help="Numer zadania do usunięcia")
     args = parser.parse_args()
     if args.command == "add": cmd_add(args)
     if args.command == "list": cmd_list(args)
     if args.command == "done": cmd_done(args)
+    if args.command == "remove":
+        cmd_remove(args)
 
 if __name__ == "__main__":
     main()
