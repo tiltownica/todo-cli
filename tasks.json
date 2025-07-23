@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "text": "Kup mleko",
+    "done": true
+  },
+  {
+    "text": "Zrób trening FBW",
+    "done": false
+  }
+]
