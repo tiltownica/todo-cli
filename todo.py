@@ -47,6 +47,17 @@ def cmd_remove(args):
     else:
         print("Błąd: nie ma takiego zadania.")
 
+def cmd_edit(args):
+    tasks = load_tasks()
+    idx = args.index - 1
+    if 0 <= idx < len(tasks):
+        old = tasks[idx]["text"]
+        tasks[idx]["text"] = args.text
+        save_tasks(tasks)
+        print(f'Zmieniono zadanie #{args.index}: "{old}" → "{args.text}"')
+    else:
+        print("Błąd: nie ma takiego zadania.")
+
 def main():
     parser = argparse.ArgumentParser(prog="todo")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -55,12 +66,20 @@ def main():
     p_done = sub.add_parser("done", help="Oznacz zadanie"); p_done.add_argument("index", type=int)
     p_remove = sub.add_parser("remove", help="Usuń zadanie")
     p_remove.add_argument("index", type=int, help="Numer zadania do usunięcia")
+    p_edit = sub.add_parser("edit", help="Edytuj treść zadania")
+    p_edit.add_argument("index", type=int, help="Numer zadania do edycji")
+    p_edit.add_argument("text", help="Nowa treść zadania")
     args = parser.parse_args()
-    if args.command == "add": cmd_add(args)
-    if args.command == "list": cmd_list(args)
-    if args.command == "done": cmd_done(args)
-    if args.command == "remove":
+    if args.command == "add": 
+        cmd_add(args)
+    elif args.command == "list": 
+        cmd_list(args)
+    elif args.command == "done": 
+        cmd_done(args)
+    elif args.command == "remove":
         cmd_remove(args)
+    elif args.command == "edit":
+        cmd_edit(args)
 
 if __name__ == "__main__":
     main()
