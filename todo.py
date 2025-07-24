@@ -2,16 +2,29 @@ import json
 import argparse
 from pathlib import Path
 import datetime
+from dataclasses import dataclass, asdict
+from typing import Optional, List
+
+@dataclass
+class Task:
+    text: str
+    done: bool = False
+    due: Optional[str] = None
 
 DATA_FILE = Path("tasks.json")
 
-def load_tasks():
+def load_tasks() -> List[Task]:
     if DATA_FILE.exists():
-        return json.loads(DATA_FILE.read_text())
+        raw = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+        return [Task(**item) for item in raw]
     return []
 
-def save_tasks(tasks):
-    DATA_FILE.write_text(json.dumps(tasks, indent=2, ensure_ascii=False))
+def save_tasks(tasks: List[Task]):
+    data = [asdict(t) for t in tasks]
+    DATA_FILE.write_text(
+        json.dumps(data, indent=2, ensure_ascii=False),
+        encoding="utf-8"
+    )
 
 def cmd_add(args):
     tasks = load_tasks()
@@ -23,11 +36,7 @@ def cmd_add(args):
         except ValueError:
             print("Błąd: niewłaściwy format daty. Użyj YYYY-MM-DD.")
             return
-    task = {
-        "text": args.text,
-        "done": False,
-        "due": due_str,
-    }
+    task = Task(text=args.text, due=due_str)
     tasks.append(task)
     save_tasks(tasks)
     msg = f'Dodano: "{args.text}"'
@@ -42,21 +51,21 @@ def cmd_list(_):
         return
     today = datetime.date.today()
     for i, t in enumerate(tasks, 1):
-        mark = "✓" if t["done"] else " "
-        due = t.get("due")
+        mark = "✓" if t.done else " "
+        due = t.due
         overdue = ""
         if due and not t["done"]:
             due_date = datetime.datetime.strptime(due, "%Y-%m-%d").date()
             if due_date < today:
                 overdue = " ⚠ "
         due_part = f" (due:{due})" if due else ""
-        print(f"{i}. [{mark}] {overdue}{t['text']}{due_part}")
+        print(f"{i}. [{mark}] {overdue}{t.text}{due_part}")
 
 def cmd_done(args):
     tasks = load_tasks()
     idx = args.index-1
     if 0 <= idx < len(tasks):
-        tasks[idx]["done"] = True
+        tasks[idx].done = True
         save_tasks(tasks)
         print(f"Oznaczono zadanie #{args.index} jako wykonane.")
     else:
@@ -66,9 +75,9 @@ def cmd_remove(args):
     tasks = load_tasks()
     idx = args.index - 1
     if 0 <= idx < len(tasks):
-        removed = tasks.pop(idx)
+        removed: Task = tasks.pop(idx)
         save_tasks(tasks)
-        print(f'Usunięto zadanie #{args.index}: "{removed["text"]}"')
+        print(f'Usunięto zadanie #{args.index}: "{removed.text}"')
     else:
         print("Błąd: nie ma takiego zadania.")
 
@@ -76,8 +85,8 @@ def cmd_edit(args):
     tasks = load_tasks()
     idx = args.index - 1
     if 0 <= idx < len(tasks):
-        old = tasks[idx]["text"]
-        tasks[idx]["text"] = args.text
+        old = tasks[idx].text
+        tasks[idx].text = args.text
         save_tasks(tasks)
         print(f'Zmieniono zadanie #{args.index}: "{old}" → "{args.text}"')
     else:

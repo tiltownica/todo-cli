@@ -1,11 +1,21 @@
 [
   {
     "text": "Buy milk",
-    "done": false,
+    "done": true,
     "due": "2025-07-20"
   },
   {
     "text": "Send the report",
+    "done": false,
+    "due": null
+  },
+  {
+    "text": "Prepare dinner for 2 days",
+    "done": false,
+    "due": "2025-07-25"
+  },
+  {
+    "text": "Schedule an appointment with dentist",
     "done": false,
     "due": null
   }
