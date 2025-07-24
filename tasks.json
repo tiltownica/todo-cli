@@ -1,6 +1,12 @@
 [
   {
-    "text": "Zrób trening góry",
-    "done": false
+    "text": "Buy milk",
+    "done": false,
+    "due": "2025-07-20"
+  },
+  {
+    "text": "Send the report",
+    "done": false,
+    "due": null
   }
 ]

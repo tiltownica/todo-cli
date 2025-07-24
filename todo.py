@@ -1,6 +1,7 @@
 import json
 import argparse
 from pathlib import Path
+import datetime
 
 DATA_FILE = Path("tasks.json")
 
@@ -14,18 +15,42 @@ def save_tasks(tasks):
 
 def cmd_add(args):
     tasks = load_tasks()
-    tasks.append({"text": args.text, "done": False})
+    due_str = None
+    if args.due:
+        try:
+            due_date = datetime.datetime.strptime(args.due, "%Y-%m-%d").date()
+            due_str = due_date.isoformat()
+        except ValueError:
+            print("Błąd: niewłaściwy format daty. Użyj YYYY-MM-DD.")
+            return
+    task = {
+        "text": args.text,
+        "done": False,
+        "due": due_str,
+    }
+    tasks.append(task)
     save_tasks(tasks)
-    print(f'Dodano: "{args.text}"')
+    msg = f'Dodano: "{args.text}"'
+    if due_str:
+        msg += f' (due: {due_str})'
+    print(msg)
 
 def cmd_list(_):
     tasks = load_tasks()
     if not tasks:
         print("Brak zadań.")
         return
+    today = datetime.date.today()
     for i, t in enumerate(tasks, 1):
         mark = "✓" if t["done"] else " "
-        print(f"{i}. [{mark}] {t['text']}")
+        due = t.get("due")
+        overdue = ""
+        if due and not t["done"]:
+            due_date = datetime.datetime.strptime(due, "%Y-%m-%d").date()
+            if due_date < today:
+                overdue = " ⚠ "
+        due_part = f" (due:{due})" if due else ""
+        print(f"{i}. [{mark}] {overdue}{t['text']}{due_part}")
 
 def cmd_done(args):
     tasks = load_tasks()
@@ -61,7 +86,13 @@ def cmd_edit(args):
 def main():
     parser = argparse.ArgumentParser(prog="todo")
     sub = parser.add_subparsers(dest="command", required=True)
-    p_add = sub.add_parser("add", help="Dodaj zadanie"); p_add.add_argument("text")
+    p_add = sub.add_parser("add", help="Dodaj zadanie")
+    p_add.add_argument("text", help="Treść zadania")
+    p_add.add_argument(
+        "--due",
+        help="Termin wykonania w formacie YYYY-MM-DD",
+        required=False
+    )
     p_list = sub.add_parser("list", help="Pokaż zadania")
     p_done = sub.add_parser("done", help="Oznacz zadanie"); p_done.add_argument("index", type=int)
     p_remove = sub.add_parser("remove", help="Usuń zadanie")
