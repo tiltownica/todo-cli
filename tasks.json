@@ -1,6 +1,21 @@
 [
   {
-    "text": "Test",
+    "text": "Buy groceries",
+    "done": false,
+    "due": "2025-07-26"
+  },
+  {
+    "text": "Set a dentist appointment",
+    "done": false,
+    "due": "2025-07-27"
+  },
+  {
+    "text": "Go to an art museum",
+    "done": true,
+    "due": null
+  },
+  {
+    "text": "Visit grandpa",
     "done": false,
     "due": null
   }
