@@ -54,7 +54,7 @@ def cmd_list(_):
         mark = "✓" if t.done else " "
         due = t.due
         overdue = ""
-        if due and not t["done"]:
+        if due and not t.done:
             due_date = datetime.datetime.strptime(due, "%Y-%m-%d").date()
             if due_date < today:
                 overdue = " ⚠ "
@@ -92,9 +92,12 @@ def cmd_edit(args):
     else:
         print("Błąd: nie ma takiego zadania.")
 
+# main function with mapping
+
 def main():
     parser = argparse.ArgumentParser(prog="todo")
     sub = parser.add_subparsers(dest="command", required=True)
+
     p_add = sub.add_parser("add", help="Dodaj zadanie")
     p_add.add_argument("text", help="Treść zadania")
     p_add.add_argument(
@@ -103,23 +106,33 @@ def main():
         required=False
     )
     p_list = sub.add_parser("list", help="Pokaż zadania")
-    p_done = sub.add_parser("done", help="Oznacz zadanie"); p_done.add_argument("index", type=int)
+
+    p_done = sub.add_parser("done", help="Oznacz zadanie w wykonane")
+    p_done.add_argument("index", type=int, help="Numer do oznaczenia jako wykonane")
+
     p_remove = sub.add_parser("remove", help="Usuń zadanie")
     p_remove.add_argument("index", type=int, help="Numer zadania do usunięcia")
+
     p_edit = sub.add_parser("edit", help="Edytuj treść zadania")
     p_edit.add_argument("index", type=int, help="Numer zadania do edycji")
     p_edit.add_argument("text", help="Nowa treść zadania")
+
     args = parser.parse_args()
-    if args.command == "add": 
-        cmd_add(args)
-    elif args.command == "list": 
-        cmd_list(args)
-    elif args.command == "done": 
-        cmd_done(args)
-    elif args.command == "remove":
-        cmd_remove(args)
-    elif args.command == "edit":
-        cmd_edit(args)
+
+    # Zmapowane funkcje dla komend CLI
+    COMMANDS = {
+        "add": cmd_add,
+        "list": cmd_list,
+        "done": cmd_done,
+        "remove": cmd_remove,
+        "edit": cmd_edit
+    }
+
+    func = COMMANDS.get(args.command)
+    if func:
+        func(args)
+    else:
+        parser.print_help()
 
 if __name__ == "__main__":
     main()
