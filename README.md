@@ -7,7 +7,7 @@
 ## Funkcjonalności
 
 - Dodawanie zadań (`add`), opcjonalnie z terminem (`--due YYYY-MM-DD`).
-- Wyświetlanie listy zadań (`list`), z oznaczeniem wykonanych i przeterminowanych.
+- Wyświetlanie listy zadań (`list`), z oznaczeniem wykonanych.
 - Oznaczanie zadania jako wykonane (`done <nr>`).
 - Usuwanie zadania (`remove <nr>`).
 - Edycja treści zadania (`edit <nr> "Nowa treść"`).
