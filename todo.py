@@ -27,7 +27,7 @@ def add(text: str, due: Optional[str] = typer.Option(None, help="Termin wykonani
         msg += f" (due: {due_str})"
     typer.secho(msg, fg=typer.colors.GREEN)
 
-@app.command()
+@app.command("list")
 def list_(show_all: bool = typer.Option(True, help="Pokaż wszystkie zadania")):
     """Wyświetl listę zadań"""
     tasks = load_tasks()
@@ -38,8 +38,12 @@ def list_(show_all: bool = typer.Option(True, help="Pokaż wszystkie zadania")):
     today = datetime.date.today()
     for i, t in enumerate(tasks, start=1):
         mark = "✓" if t.done else " "
-        due = t.due or "-"
-        overdue_flag = " ⚠ " if (t.due and not t.done and datetime.datetime.strptime(t.due, "%Y-%m-%d").date() < today) else ""
+        due = t.due
+        overdue_flag = ""
+        if due and not t.done and datetime.datetime.strptime(t.due, "%Y-%m-%d").date() < today:
+            overdue_flag = "⚠ "
+        
+        due_part = f" (due: {due})" if due else ""
         typer.echo(f"{i}. [{mark}] {overdue_flag}{t.text} (due: {due})")
 
 @app.command()
